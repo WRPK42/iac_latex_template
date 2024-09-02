@@ -27,7 +27,8 @@
 \newcommand{\IACauthor}[2]{%
 	\stepcounter{authcount}%
 	\csdef{iac@author\theauthcount}{#1}%
-	\csdef{iac@affiliation\theauthcount}{#2}}
+	\csdef{iac@affiliation\theauthcount}{#2}
+	\csdef{iac@type\theauthcount}{#3}}% #3 is the author type: "main" or "co"
 
 \setlength\parindent{12pt}
 \RequirePackage[]{caption}
@@ -74,7 +75,6 @@
   \end{@twocolumnfalse}
   ]}
 \def\@maketitle{%
-  \newpage
   \begin{center}%
     IAC--\iac@paperyear--\iac@papernumber\par%
     \vskip1em
@@ -82,18 +82,56 @@
     \vskip 1.5em%
     {\large
       \lineskip .5em%
+      % Ensure authnum is defined and initialize it
       \newcounter{authnum}%
-      \setcounter{authnum}{0}
+      \setcounter{authnum}{0}%
+      % Define affnum counter for affiliations
+      \newcounter{affnum}%
+      \setcounter{affnum}{0}%
+      
+      % Command to generate superscript letters (a, b, c, ...)
+      \newcommand{\affmark}{\stepcounter{affnum}\textsuperscript{\alph{affnum}}} 
+      
+      % Define corresponding author superscript
+      \newcommand{\correspondingmark}{\textsuperscript{*}}
+
+      % Display all authors in a single line with superscripts
+      \normalsize
       \whileboolexpr
       { test {\ifnumcomp{\value{authnum}}{<}{\theauthcount}} }%
       {\stepcounter{authnum}%
-      	\normalsize\textbf{\csuse{iac@author\theauthnum}}\par%
-		\normalsize\csuse{iac@affiliation\theauthnum}\par%
-		\vskip 1.5ex%
-	  }%
+        \textbf{\csuse{iac@author\theauthnum}}%
+        \affmark% Add alphabetic superscript
+        \ifcsstring{iac@type\theauthnum}{main}{\correspondingmark}{}% Add * if author is main
+        \ifnumcomp{\value{authnum}}{<}{\theauthcount}{, }{}%
+      }%
+      \par%
     }%
   \end{center}%
+  \vskip 1em%
+  % List affiliations as a left-aligned paragraph in italics with no hyphenation
+  \noindent
+  \setcounter{affnum}{0}%
+  \raggedright% Prevent hyphenation and align left
+  \hyphenpenalty=10000 % Disable hyphenation
+  \exhyphenpenalty=10000 % Disable explicit hyphenation
+  \normalsize
+  \whileboolexpr
+  { test {\ifnumcomp{\value{affnum}}{<}{\theauthcount}} }%
+  {\stepcounter{affnum}%
+    \textsuperscript{\alph{affnum}} \textit{\csuse{iac@affiliation\theaffnum}}\par%
+  }%
+  % Add footnote for corresponding author(s)
+  \vskip 1em%
+  \noindent\textsuperscript{*} \textit{Corresponding author(s).}\par%
+  \vskip 1.5em%
+  % Centered and bold "Abstract" title
+  \begin{center}
+    \textbf{Abstract}
+  \end{center}
   \indent\iac@abstract\par%
+  \vskip 1em%
+  \indent\iac@keywords\par%
   \vskip 4.5ex}%
   \pagestyle{fancy}%
   
