@@ -24,7 +24,7 @@
 \renewcommand{\headrulewidth}{0pt}
 
 \newcounter{authcount}
-\newcommand{\IACauthor}[2]{%
+\newcommand{\IACauthor}[3]{%
 	\stepcounter{authcount}%
 	\csdef{iac@author\theauthcount}{#1}%
 	\csdef{iac@affiliation\theauthcount}{#2}
